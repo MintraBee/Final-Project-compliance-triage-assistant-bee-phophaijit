@@ -1,0 +1,30 @@
+{
+  "employment": {
+    "owner": "People Team / Finance",
+    "description": "Issues related to remote work, payroll registration, employee handbook updates, HR compliance, and multi-state employment."
+  },
+  "biosafety": {
+    "owner": "Lab Operations / Safety Officer",
+    "description": "Issues related to lab safety, biosafety cabinet inspections, safety protocols, and laboratory compliance."
+  },
+  "data_privacy": {
+    "owner": "Legal / IT Security",
+    "description": "Issues related to HIPAA, partner privacy questions, employee health information, data sharing, and information security."
+  },
+  "contracts": {
+    "owner": "Legal / Finance",
+    "description": "Issues related to contract review, vendor renewals, approval bottlenecks, financial obligations, and legal terms."
+  },
+  "policy_review": {
+    "owner": "Compliance Coordinator / Legal",
+    "description": "Issues related to annual policy review, missing documentation, SOP updates, policy governance, and documentation gaps."
+  },
+  "vendor_risk": {
+    "owner": "Procurement / Legal / IT Security",
+    "description": "Issues related to vendors handling employee data, laboratory operations, service contracts, privacy review, and cross-functional risk."
+  },
+  "unclear": {
+    "owner": "Unclear - Human Review Required",
+    "description": "Used when the note does not provide enough information to confidently classify or route the issue."
+  }
+}
