@@ -188,7 +188,7 @@ if st.button("Run Triage", type="primary"):
 
         with col1:
             st.markdown("### Domain")
-            st.success(domain)
+            st.success(domain.replace("_", " ").title())
 
             st.markdown("### Escalation Level")
             st.info(escalation)
