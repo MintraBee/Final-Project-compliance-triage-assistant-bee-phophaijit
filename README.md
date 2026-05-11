@@ -214,4 +214,32 @@ A user can:
 2. click **Run Triage**
 3. receive a structured tracker-ready compliance output
 
-This demonstrates a practical GenAI workflow that combines LLM reasoning with deterministic business controls.
+This demonstrates a practical GenAI workflow that combines Claude-based language interpretation with deterministic business controls.
+
+---
+
+## Initial Model Testing
+
+During real testing, Claude was evaluated across multiple enterprise compliance scenarios.
+
+Initial testing revealed strong performance in some domains, but also showed classification drift in several edge cases. This led to prompt refinement and improved domain-specific instructions.
+
+### Employment Compliance Case
+
+![Employment Case](screenshots/employment.png)
+
+### Privacy Escalation Case (Initial Misclassification)
+
+![Privacy Case](screenshots/data_privacy.png)
+
+### Biosafety Operations Case
+
+![Biosafety Case](screenshots/Lab_operations_compliance.png)
+
+### Vendor Risk Case (Initial Misclassification)
+
+![Vendor Risk Case](screenshots/vendor_risk.png)
+
+### Policy Governance Case (Initial Misclassification)
+
+![Policy Review Case](screenshots/Policy_review.png)
