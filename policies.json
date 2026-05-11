@@ -1,0 +1,30 @@
+{
+  "employment": {
+    "policy_reference": "Remote Work and Multi-State Employment Policy",
+    "description": "Used for remote employee registration, payroll withholding, employee handbook, and employment compliance issues."
+  },
+  "biosafety": {
+    "policy_reference": "Biosafety Cabinet Inspection SOP",
+    "description": "Used for lab inspection schedules, biosafety cabinet maintenance, safety protocols, and vendor inspection follow-up."
+  },
+  "data_privacy": {
+    "policy_reference": "Privacy and External Partner Inquiry Policy",
+    "description": "Used for HIPAA-related questions, partner privacy inquiries, employee health information, and data-sharing concerns."
+  },
+  "contracts": {
+    "policy_reference": "Contract Review and Approval Policy",
+    "description": "Used for vendor contract renewals, approval workflows, ownership disputes, and legal or finance review."
+  },
+  "policy_review": {
+    "policy_reference": "Annual Policy Governance Procedure",
+    "description": "Used for annual policy review, missing policy documentation, SOP updates, and policy governance tracking."
+  },
+  "vendor_risk": {
+    "policy_reference": "Vendor Risk Review Procedure",
+    "description": "Used for vendors handling sensitive data, laboratory services, operational support, or cross-functional compliance review."
+  },
+  "unclear": {
+    "policy_reference": "No policy reference found - Human Review Required",
+    "description": "Used when the note is too ambiguous to match confidently to an existing policy."
+  }
+}
