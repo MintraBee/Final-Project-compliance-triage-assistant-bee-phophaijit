@@ -107,7 +107,7 @@ def assign_escalation(domain):
 # Simple summary
 def generate_summary(note):
     if len(note) > 170:
-        return note[:170] + "..."
+        return note.strip()
 
     return note.strip()
 
