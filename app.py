@@ -4,6 +4,13 @@ import os
 from dotenv import load_dotenv
 import anthropic
 
+# Page configuration
+st.set_page_config(
+    page_title="Compliance Tracker Assistant",
+    page_icon="🧭",
+    layout="centered"
+)
+
 # Load environment variables
 load_dotenv()
 
@@ -21,15 +28,36 @@ with open("policies.json", "r") as f:
     policies = json.load(f)
 
 
-# Claude classification
 def classify_with_claude(note):
-
     prompt = f"""
-You are a compliance triage assistant.
+You are an enterprise compliance classification assistant.
 
-Analyze the compliance note below.
+Classify the compliance note into EXACTLY one domain.
 
-Return ONLY one domain from this list:
+IMPORTANT RULES:
+
+employment:
+Use ONLY for payroll, HR registration, employee tax withholding, state employment compliance, handbook employment requirements.
+
+biosafety:
+Use ONLY for laboratory safety, inspections, safety equipment, lab vendor scheduling.
+
+data_privacy:
+Use ONLY for HIPAA, privacy incidents, employee health information, data sharing, access logs, IT security concerns.
+
+contracts:
+Use ONLY for vendor contracts, procurement approvals, contract ownership, signature routing.
+
+policy_review:
+Use ONLY for policy governance, annual reviews, SOP updates, handbook review cycles, missing policy documentation.
+
+vendor_risk:
+Use ONLY for third-party software vendors, employee data storage, security documentation, vendor security assessments.
+
+unclear:
+Use ONLY when the note is too ambiguous to classify.
+
+Return ONLY one of these exact values:
 
 employment
 biosafety
@@ -63,9 +91,7 @@ Compliance Note:
     return domain
 
 
-# Escalation logic
 def assign_escalation(domain):
-
     if domain in ["employment", "data_privacy"]:
         return "High"
 
@@ -76,18 +102,14 @@ def assign_escalation(domain):
         return "Low"
 
 
-# Issue summary
 def generate_summary(note):
-
-    if len(note) > 150:
-        return note[:150] + "..."
+    if len(note) > 170:
+        return note[:170] + "..."
 
     return note.strip()
 
 
-# Next action
 def next_action(domain):
-
     actions = {
         "employment": "Confirm payroll or HR compliance issue before the next payroll cycle.",
         "biosafety": "Coordinate inspection follow-up with Lab Operations or the Safety Officer.",
@@ -101,30 +123,47 @@ def next_action(domain):
     return actions.get(domain, "Human review required.")
 
 
-# Streamlit UI
-st.title("Compliance Tracker Assistant")
+# Header
+st.markdown(
+    """
+# Compliance Tracker Assistant
 
-st.write(
-    "Enter a compliance-related note below. "
-    "This tool supports first-pass triage only. "
-    "Human review is required."
+Turn messy compliance notes into structured, tracker-ready follow-up items.
+
+This tool uses Claude for first-pass classification and controlled registries for owner and policy routing.
+"""
 )
 
-user_input = st.text_area("Compliance Note")
+st.info("Human review is required before any compliance action is taken.")
 
+# Sample scenario selector
+sample_note = st.selectbox(
+    "Try a sample scenario",
+    [
+        "",
+        "During the monthly operations review, HR flagged that a remote employee who relocated to California may not have completed state payroll registration. Finance noted that payroll withholding appears to be active, but legal has not confirmed whether state employment registration requirements were completed before the employee’s relocation.",
+        "During a partner check-in, a healthcare collaborator asked whether employee wellness survey results were shared with external vendors. Legal has not responded yet, and IT Security noted that access logs may need review. The partner requested clarification before contract renewal discussions continue.",
+        "Facilities reported that the biosafety cabinet inspection for Lab 3 is now three weeks overdue. The vendor invoice was approved, but no inspection appointment was scheduled. Lab Operations believes the Safety Officer owns the process, while Procurement believes vendor scheduling should remain with Facilities.",
+        "During annual policy review, HR identified that the employee handbook still references outdated remote work guidance from last year. Compliance noted the document should have been reviewed in Q1, but legal sign-off has not been completed.",
+        "A new software vendor has been selected to support laboratory inventory tracking and employee access control. Procurement approved pricing, but IT Security raised concerns about employee badge data storage and vendor security documentation. Legal has not completed the contract review.",
+        "There is an open compliance issue from last week, but the meeting notes do not identify which team owns it."
+    ]
+)
 
-if st.button("Run Triage"):
+user_input = st.text_area(
+    "Compliance Note",
+    value=sample_note,
+    height=180,
+    placeholder="Paste a compliance-related meeting note, audit note, or operational update here..."
+)
+
+if st.button("Run Triage", type="primary"):
 
     if not user_input.strip():
-
-        st.warning(
-            "Please enter a compliance note before running triage."
-        )
+        st.warning("Please enter a compliance note before running triage.")
 
     else:
-
-        with st.spinner("Analyzing with Claude..."):
-
+        with st.spinner("Analyzing note with Claude..."):
             domain = classify_with_claude(user_input)
 
         owner = owners[domain]["owner"]
@@ -133,12 +172,30 @@ if st.button("Run Triage"):
         summary = generate_summary(user_input)
         action = next_action(domain)
 
+        st.divider()
         st.subheader("Triage Output")
 
-        st.write(f"**Domain:** {domain}")
-        st.write(f"**Issue Summary:** {summary}")
-        st.write(f"**Suggested Owner:** {owner}")
-        st.write(f"**Escalation Level:** {escalation}")
-        st.write(f"**Policy Reference:** {policy}")
-        st.write(f"**Recommended Next Action:** {action}")
-        st.write("**Human Review:** Required before action")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.metric("Domain", domain)
+            st.metric("Escalation Level", escalation)
+
+        with col2:
+            st.metric("Suggested Owner", owner)
+            st.metric("Policy Reference", policy)
+
+        st.markdown("### Issue Summary")
+        st.write(summary)
+
+        st.markdown("### Recommended Next Action")
+        st.success(action)
+
+        st.warning("Human review required before action.")
+
+        with st.expander("Why this design matters"):
+            st.write(
+                "Claude is used to interpret the messy natural-language note. "
+                "Owner routing and policy references come from controlled JSON registries, "
+                "which helps reduce hallucination risk and keeps the workflow auditable."
+            )
