@@ -45,6 +45,26 @@ def assign_escalation(domain):
         return "Low"
 
 
+# Issue summary logic
+def generate_summary(note):
+    return note.strip()
+
+
+# Recommended next action logic
+def next_action(domain):
+    actions = {
+        "employment": "Confirm payroll or HR compliance issue before the next payroll cycle.",
+        "biosafety": "Coordinate inspection follow-up with Lab Operations or the Safety Officer.",
+        "data_privacy": "Escalate to Legal and IT Security for privacy review.",
+        "contracts": "Clarify ownership and route the contract for Legal and Finance review.",
+        "policy_review": "Review policy documentation and assign a responsible owner.",
+        "vendor_risk": "Coordinate cross-functional review with Procurement, Legal, and IT Security.",
+        "unclear": "Request additional context before taking action."
+    }
+
+    return actions.get(domain, "Human review required.")
+
+
 # App UI
 st.title("Compliance Triage and Owner Routing Assistant")
 
@@ -58,16 +78,23 @@ user_input = st.text_area("Compliance Note")
 
 if st.button("Run Triage"):
 
-    domain = classify_note(user_input)
+    if not user_input.strip():
+        st.warning("Please enter a compliance note before running triage.")
 
-    owner = owners[domain]["owner"]
-    policy = policies[domain]["policy_reference"]
-    escalation = assign_escalation(domain)
+    else:
+        domain = classify_note(user_input)
+        owner = owners[domain]["owner"]
+        policy = policies[domain]["policy_reference"]
+        escalation = assign_escalation(domain)
+        summary = generate_summary(user_input)
+        action = next_action(domain)
 
-    st.subheader("Triage Output")
+        st.subheader("Triage Output")
 
-    st.write(f"**Domain:** {domain}")
-    st.write(f"**Suggested Owner:** {owner}")
-    st.write(f"**Escalation Level:** {escalation}")
-    st.write(f"**Policy Reference:** {policy}")
-    st.write("**Human Review:** Required before action")
+        st.write(f"**Domain:** {domain}")
+        st.write(f"**Issue Summary:** {summary}")
+        st.write(f"**Suggested Owner:** {owner}")
+        st.write(f"**Escalation Level:** {escalation}")
+        st.write(f"**Policy Reference:** {policy}")
+        st.write(f"**Recommended Next Action:** {action}")
+        st.write("**Human Review:** Required before action")
