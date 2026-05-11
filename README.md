@@ -15,9 +15,11 @@ I built a small Streamlit application that converts one unstructured compliance 
 The tool returns:
 
 - Domain
+- Issue summary
 - Suggested owner
 - Escalation level
 - Policy reference
+- Recommended next action
 - Human review requirement
 
 The current prototype uses rule-based classification and deterministic lookup files:
@@ -48,3 +50,67 @@ The prototype improves the baseline by producing a consistent structured output 
 
 ```bash
 py -m pip install -r requirements.txt
+```
+
+3. Run the Streamlit app:
+
+```bash
+py -m streamlit run app.py
+```
+
+4. Open the local browser link provided by Streamlit.
+
+## Example Input
+
+```text
+Remote employee in California may not be properly registered for payroll withholding. Need to confirm before next cycle.
+```
+
+## Example Output
+
+```text
+Domain: employment
+Issue Summary: Remote employee in California may not be properly registered for payroll withholding. Need to confirm before next cycle.
+Suggested Owner: People Team / Finance
+Escalation Level: High
+Policy Reference: Remote Work and Multi-State Employment Policy
+Recommended Next Action: Confirm payroll or HR compliance issue before the next payroll cycle.
+Human Review: Required before action
+```
+
+## Evaluation and Results
+
+The project includes a synthetic evaluation set in `sample_inputs.md`. The evaluation covers clear cases, ambiguous cases, multi-domain cases, missing policy cases, and high-risk escalation cases.
+
+Evaluation criteria include:
+
+- Domain classification accuracy
+- Owner routing accuracy
+- Policy reference relevance
+- Escalation level appropriateness
+- Output completeness
+- Safe handling of ambiguous inputs
+
+Detailed results are documented in `evaluation.md`.
+
+## Human Oversight and Limitations
+
+This tool does not provide legal advice.
+
+This tool does not make final compliance decisions.
+
+All outputs require human review before action is taken.
+
+Current limitations include:
+
+- The current prototype uses simple rule-based classification
+- Ambiguous notes may require manual clarification
+- Multi-domain issues may require additional routing logic
+- Policy references are synthetic and not tied to a real internal knowledge base
+- The tool is designed for first-pass triage only
+
+## Artifact Snapshot
+
+The working artifact is a Streamlit app in `app.py`.
+
+A user can enter a compliance note, click “Run Triage,” and receive a structured triage output.
