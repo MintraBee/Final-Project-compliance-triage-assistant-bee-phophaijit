@@ -1,245 +1,288 @@
 # Compliance Tracker Assistant
 
+A GenAI-powered workflow assistant for first-pass compliance triage in regulated organizations.
+
+Live application:
+
+[Compliance Tracker Assistant](https://bee-compliance-tracker.streamlit.app?utm_source=chatgpt.com)
+
+---
+
 ## Context, User, and Problem
 
-This project supports a compliance coordinator, project coordinator, or operations manager working in regulated industries such as biotechnology, healthcare, life sciences, or other compliance-driven environments.
+This project supports a compliance coordinator, project coordinator, operations manager, or cross-functional program manager working in regulated industries such as biotechnology, healthcare, or life sciences.
 
-Compliance issues often surface through internal meeting notes, audit findings, HR discussions, legal reviews, vendor escalations, or operational conversations.
+Compliance issues often appear in:
 
-A coordinator may need to:
+- meeting notes
+- audit findings
+- HR escalations
+- legal reviews
+- vendor discussions
+- operational conversations
 
-- identify the compliance domain
-- determine the correct owner
-- locate relevant policy or SOP references
-- assign escalation priority
-- create tracker-ready follow-up actions
+These updates are often written in messy, unstructured language and may involve multiple stakeholders.
 
-This process is often manual, inconsistent, and dependent on tribal knowledge. Missed ownership or delayed escalation can create operational risk, audit findings, or regulatory exposure.
+A coordinator typically must manually:
+
+1. read the note
+2. identify the compliance domain
+3. determine ownership
+4. search for relevant policies or SOPs
+5. assign escalation priority
+6. create tracker-ready follow-up actions
+
+This process is often:
+
+- time consuming
+- inconsistent
+- dependent on tribal knowledge
+- vulnerable to missed ownership or delayed escalation
+
+When compliance issues are not handled consistently, organizations may face:
+
+- audit findings
+- operational delays
+- policy gaps
+- regulatory exposure
 
 ---
 
 ## Solution and Design
 
-I built a Streamlit application that converts one unstructured compliance note into a structured triage output.
+I built a Streamlit application called **Compliance Tracker Assistant**.
+
+The application takes one unstructured compliance note and converts it into a structured compliance triage output.
 
 The tool returns:
 
-- Domain
-- Issue Summary
-- Suggested Owner
-- Escalation Level
-- Policy Reference
-- Recommended Next Action
-- Human Review Requirement
+- Domain classification
+- Issue summary
+- Suggested owner
+- Escalation level
+- Policy reference
+- Recommended next action
+- Human review requirement
 
-The application uses Claude through the Anthropic API to interpret the compliance note and classify it into one of the supported compliance domains.
+### Workflow Architecture
 
-The project also uses deterministic lookup files:
+```text
+Raw Compliance Note
+↓
+Claude (Anthropic API)
+↓
+Controlled Owner + Policy Registries
+↓
+Structured Triage Output
+```
 
-- `owners.json` routes each compliance domain to a suggested owner
-- `policies.json` maps each domain to a policy reference
-- `app.py` provides the Streamlit user interface, Claude API call, and triage logic
+### Key Design Decision
 
-This design separates GenAI interpretation from controlled business routing logic.
+Claude is only used for:
 
-Claude interprets messy natural language, while owner and policy routing remain controlled through registry files to reduce hallucination risk and improve auditability.
+- interpreting messy natural language
+- identifying the compliance domain
+
+Deterministic business controls are used for:
+
+- owner routing
+- policy references
+- escalation logic
+
+This reduces hallucination risk and keeps the workflow auditable.
+
+### Core Files
+
+- `app.py` → Streamlit application and Claude integration
+- `owners.json` → Owner routing registry
+- `policies.json` → Policy reference registry
+- `sample_inputs.md` → Evaluation scenarios
+- `evaluation.md` → Detailed evaluation results
 
 ---
 
 ## Why GenAI Is Useful
 
-Compliance notes are often written in natural language and may include:
+Compliance notes are rarely structured.
 
-- incomplete ownership details
+They often contain:
+
+- incomplete context
 - multiple stakeholders
-- ambiguous escalation signals
-- inconsistent formatting
-- operational context mixed with compliance risk
+- inconsistent wording
+- operational ambiguity
 
-Traditional rule-based systems struggle with this variability.
+Traditional keyword matching often fails.
 
-GenAI improves this workflow by:
+Claude helps interpret these messy notes and classify them more consistently.
 
-- interpreting messy or incomplete language
-- classifying issues based on context
-- supporting consistent first-pass triage
-- improving structured documentation quality
-
-However, GenAI is only used for interpretation.
-
-Ownership, policy references, and escalation logic remain under deterministic business controls.
-
----
-
-## Baseline Comparison
-
-The baseline represents how this work is often done today.
-
-A coordinator manually:
-
-1. reads the compliance note
-2. identifies the compliance domain
-3. checks spreadsheets or internal trackers
-4. finds the correct owner
-5. searches for policy references
-6. drafts a follow-up action
-
-Common baseline issues include:
-
-- inconsistent outputs
-- missing ownership
-- unclear escalation
-- reliance on tribal knowledge
-- missed documentation gaps
-
-The Compliance Tracker Assistant improves the baseline by producing consistent, structured, and tracker-ready outputs.
-
----
-
-## Setup Instructions
-
-### 1. Clone or download this repository.
-
-### 2. Install dependencies:
-
-```bash
-py -m pip install -r requirements.txt
-```
-
-### 3. Create a `.env` file in the project root folder.
-
-Add your Anthropic API key:
-
-```text
-ANTHROPIC_API_KEY=your_api_key_here
-```
-
-### 4. Run the Streamlit application:
-
-```bash
-py -m streamlit run app.py
-```
-
-### 5. Open the local browser link provided by Streamlit.
-
----
-
-## Example Input
-
-```text
-During the monthly operations review, HR flagged that a remote employee who relocated to California may not have completed state payroll registration. Finance noted that payroll withholding appears to be active, but legal has not confirmed whether state employment registration requirements were completed before the employee’s relocation.
-```
-
----
-
-## Example Output
-
-```text
-Domain: employment
-
-Issue Summary:
-During the monthly operations review, HR flagged that a remote employee who relocated to California may not have completed state payroll registration....
-
-Suggested Owner:
-People Team / Finance
-
-Escalation Level:
-High
-
-Policy Reference:
-Remote Work and Multi-State Employment Policy
-
-Recommended Next Action:
-Confirm payroll or HR compliance issue before the next payroll cycle.
-
-Human Review:
-Required before action
-```
+However, business routing remains deterministic to maintain governance and compliance controls.
 
 ---
 
 ## Evaluation and Results
 
-The project includes a synthetic evaluation set in `sample_inputs.md`.
-
-The evaluation covers:
+This project was evaluated using **10 synthetic enterprise compliance scenarios** covering:
 
 - Employment compliance
-- Biosafety
-- Data privacy
+- Biosafety operations
+- Data privacy incidents
 - Contract review
 - Policy governance
+- Vendor risk
 - Ambiguous inputs
-- Multi-domain scenarios
-- High-risk escalation cases
+- Multi-domain escalation scenarios
 
-Evaluation criteria include:
+### Baseline
 
-- Domain classification accuracy
-- Owner routing accuracy
-- Policy reference relevance
-- Escalation appropriateness
-- Output completeness
-- Safe handling of ambiguity
+Baseline workflow:
 
-Detailed evaluation results are documented in `evaluation.md`.
+Manual or spreadsheet-based triage using memory, keyword matching, and internal documentation.
+
+### Baseline Performance
+
+Correct domain classification:
+
+**5/10 cases (50%)**
+
+Common failures:
+
+- inconsistent ownership routing
+- privacy issues misclassified
+- vendor risks routed incorrectly
+- escalation inconsistencies
+
+### Compliance Tracker Assistant Performance
+
+After prompt refinement:
+
+Correct domain classification:
+
+**9/10 cases (90%)**
+
+Output completeness:
+
+**10/10 cases (100%)**
+
+Ambiguous input handling:
+
+**2/2 ambiguous scenarios safely escalated**
+
+### Key Improvement
+
+Compared with the baseline:
+
+- Domain classification improved from **50% → 90%**
+- Output completeness improved from **~60% → 100%**
+- Ambiguous input handling improved from guessing to safe escalation
+
+### Known Limitations
+
+The assistant still struggles with:
+
+#### Multi-Domain Notes
+
+Some enterprise notes require routing to multiple owners.
+
+#### Policy Gaps
+
+If no matching policy exists, human review remains necessary.
+
+#### Enterprise Knowledge Limits
+
+Current policy references are synthetic and not connected to a live enterprise knowledge base.
 
 ---
 
-## Human Oversight and Limitations
+## Human Oversight
 
-This tool does not provide legal advice.
+This system:
 
-This tool does not make final compliance decisions.
+- does not provide legal advice
+- does not make final compliance decisions
+- does not autonomously escalate issues
 
-All outputs require human review before action is taken.
-
-Current limitations include:
-
-- Multi-domain notes may require multiple owner assignments
-- Some highly ambiguous notes may require manual clarification
-- Policy references are synthetic and not connected to a live enterprise knowledge base
-- Escalation logic currently uses controlled business rules
-- The tool supports first-pass triage only
+All outputs require human review before action.
 
 ---
 
 ## Artifact Snapshot
 
-The working artifact is a Streamlit application implemented in `app.py`.
+The working artifact is a deployed Streamlit application.
 
-A user can:
+### Example: Vendor Risk Escalation
 
-1. enter an unstructured compliance note
-2. click **Run Triage**
-3. receive a structured tracker-ready compliance output
+A third-party software vendor scenario was submitted through the application.
 
-This demonstrates a practical GenAI workflow that combines Claude-based language interpretation with deterministic business controls.
+The assistant correctly returned:
+
+- Domain: Vendor Risk
+- Suggested Owner: Procurement / Legal / IT Security
+- Escalation Level: Medium
+- Policy Reference: Vendor Risk Review Procedure
+- Recommended Next Action: Coordinate cross-functional review
+
+This demonstrates how the assistant converts messy compliance notes into structured, tracker-ready outputs.
+
+### Application Screenshot
+
+![Vendor Risk Example](screenshots/vendor_risk.png)
 
 ---
 
-## Initial Model Testing
+## Setup Instructions
 
-During real testing, Claude was evaluated across multiple enterprise compliance scenarios.
+### 1. Clone the repository
 
-Initial testing revealed strong performance in some domains, but also showed classification drift in several edge cases. This led to prompt refinement and improved domain-specific instructions.
+```bash
+git clone <your-repository-url>
+cd Final-Project-compliance-triage-assistant-bee-phophaijit
+```
 
-### Employment Compliance Case
+### 2. Install dependencies
 
-![Employment Case](screenshots/employment.png)
+```bash
+py -m pip install -r requirements.txt
+```
 
-### Privacy Escalation Case (Initial Misclassification)
+### 3. Create a `.env` file
 
-![Privacy Case](screenshots/data_privacy.png)
+Create a file named `.env`
 
-### Biosafety Operations Case
+Add:
 
-![Biosafety Case](screenshots/Lab_operations_compliance.png)
+```env
+ANTHROPIC_API_KEY="your_api_key_here"
+```
 
-### Vendor Risk Case (Initial Misclassification)
+Do not commit this file.
 
-![Vendor Risk Case](screenshots/vendor_risk.png)
+### 4. Run the app
 
-### Policy Governance Case (Initial Misclassification)
+```bash
+py -m streamlit run app.py
+```
 
-![Policy Review Case](screenshots/Policy_review.png)
+### 5. Open the local Streamlit URL
+
+Usually:
+
+```text
+http://localhost:8501
+```
+
+---
+
+## Final Recommendation
+
+This tool is best used as a **first-pass compliance workflow assistant** for:
+
+- compliance teams
+- operations teams
+- PMO functions
+- governance programs
+- audit preparation workflows
+
+Claude handles interpretation.
+
+Humans remain accountable for final compliance decisions.
