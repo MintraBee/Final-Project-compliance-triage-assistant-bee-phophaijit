@@ -1,5 +1,16 @@
 import streamlit as st
 import json
+import os
+from dotenv import load_dotenv
+import anthropic
+
+# Load environment variables
+load_dotenv()
+
+# Create Anthropic client
+client = anthropic.Anthropic(
+    api_key=os.getenv("ANTHROPIC_API_KEY")
+)
 
 # Load owner registry
 with open("owners.json", "r") as f:
@@ -10,48 +21,73 @@ with open("policies.json", "r") as f:
     policies = json.load(f)
 
 
-# Simple classification logic
-def classify_note(note):
-    note = note.lower()
+# Claude classification
+def classify_with_claude(note):
 
-    if "payroll" in note or "employee" in note or "california" in note:
-        return "employment"
+    prompt = f"""
+You are a compliance triage assistant.
 
-    elif "biosafety" in note or "lab" in note or "inspection" in note:
-        return "biosafety"
+Analyze the compliance note below.
 
-    elif "hipaa" in note or "privacy" in note or "health information" in note:
-        return "data_privacy"
+Return ONLY one domain from this list:
 
-    elif "contract" in note or "vendor" in note:
-        return "contracts"
+employment
+biosafety
+data_privacy
+contracts
+policy_review
+vendor_risk
+unclear
 
-    elif "policy" in note or "handbook" in note:
-        return "policy_review"
+Compliance Note:
+{note}
+"""
 
-    else:
-        return "unclear"
+    response = client.messages.create(
+        model="claude-haiku-4-5",
+        max_tokens=20,
+        temperature=0,
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    )
+
+    domain = response.content[0].text.strip().lower()
+
+    if domain not in owners:
+        domain = "unclear"
+
+    return domain
 
 
 # Escalation logic
 def assign_escalation(domain):
-    if domain in ["data_privacy", "employment"]:
+
+    if domain in ["employment", "data_privacy"]:
         return "High"
 
-    elif domain in ["biosafety", "contracts", "policy_review"]:
+    elif domain in ["biosafety", "contracts", "policy_review", "vendor_risk"]:
         return "Medium"
 
     else:
         return "Low"
 
 
-# Issue summary logic
+# Issue summary
 def generate_summary(note):
+
+    if len(note) > 150:
+        return note[:150] + "..."
+
     return note.strip()
 
 
-# Recommended next action logic
+# Next action
 def next_action(domain):
+
     actions = {
         "employment": "Confirm payroll or HR compliance issue before the next payroll cycle.",
         "biosafety": "Coordinate inspection follow-up with Lab Operations or the Safety Officer.",
@@ -65,7 +101,7 @@ def next_action(domain):
     return actions.get(domain, "Human review required.")
 
 
-# App UI
+# Streamlit UI
 st.title("Compliance Tracker Assistant")
 
 st.write(
@@ -76,13 +112,21 @@ st.write(
 
 user_input = st.text_area("Compliance Note")
 
+
 if st.button("Run Triage"):
 
     if not user_input.strip():
-        st.warning("Please enter a compliance note before running triage.")
+
+        st.warning(
+            "Please enter a compliance note before running triage."
+        )
 
     else:
-        domain = classify_note(user_input)
+
+        with st.spinner("Analyzing with Claude..."):
+
+            domain = classify_with_claude(user_input)
+
         owner = owners[domain]["owner"]
         policy = policies[domain]["policy_reference"]
         escalation = assign_escalation(domain)
