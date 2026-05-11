@@ -66,7 +66,7 @@ def next_action(domain):
 
 
 # App UI
-st.title("Compliance Triage and Owner Routing Assistant")
+st.title("Compliance Tracker Assistant")
 
 st.write(
     "Enter a compliance-related note below. "
