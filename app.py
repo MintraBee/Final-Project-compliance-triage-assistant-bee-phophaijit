@@ -28,6 +28,7 @@ with open("policies.json", "r") as f:
     policies = json.load(f)
 
 
+# Claude classification
 def classify_with_claude(note):
     prompt = f"""
 You are an enterprise compliance classification assistant.
@@ -91,6 +92,7 @@ Compliance Note:
     return domain
 
 
+# Escalation logic
 def assign_escalation(domain):
     if domain in ["employment", "data_privacy"]:
         return "High"
@@ -102,6 +104,7 @@ def assign_escalation(domain):
         return "Low"
 
 
+# Simple summary
 def generate_summary(note):
     if len(note) > 170:
         return note[:170] + "..."
@@ -109,6 +112,7 @@ def generate_summary(note):
     return note.strip()
 
 
+# Suggested action
 def next_action(domain):
     actions = {
         "employment": "Confirm payroll or HR compliance issue before the next payroll cycle.",
@@ -136,7 +140,8 @@ This tool uses Claude for first-pass classification and controlled registries fo
 
 st.info("Human review is required before any compliance action is taken.")
 
-# Sample scenario selector
+
+# Sample scenarios
 sample_note = st.selectbox(
     "Try a sample scenario",
     [
@@ -150,6 +155,8 @@ sample_note = st.selectbox(
     ]
 )
 
+
+# User input
 user_input = st.text_area(
     "Compliance Note",
     value=sample_note,
@@ -157,6 +164,8 @@ user_input = st.text_area(
     placeholder="Paste a compliance-related meeting note, audit note, or operational update here..."
 )
 
+
+# Run button
 if st.button("Run Triage", type="primary"):
 
     if not user_input.strip():
@@ -178,12 +187,18 @@ if st.button("Run Triage", type="primary"):
         col1, col2 = st.columns(2)
 
         with col1:
-            st.metric("Domain", domain)
-            st.metric("Escalation Level", escalation)
+            st.markdown("### Domain")
+            st.success(domain)
+
+            st.markdown("### Escalation Level")
+            st.info(escalation)
 
         with col2:
-            st.metric("Suggested Owner", owner)
-            st.metric("Policy Reference", policy)
+            st.markdown("### Suggested Owner")
+            st.write(owner)
+
+            st.markdown("### Policy Reference")
+            st.write(policy)
 
         st.markdown("### Issue Summary")
         st.write(summary)
@@ -195,7 +210,7 @@ if st.button("Run Triage", type="primary"):
 
         with st.expander("Why this design matters"):
             st.write(
-                "Claude is used to interpret the messy natural-language note. "
+                "Claude is used to interpret messy natural-language compliance notes. "
                 "Owner routing and policy references come from controlled JSON registries, "
-                "which helps reduce hallucination risk and keeps the workflow auditable."
+                "which reduces hallucination risk and keeps the workflow auditable."
             )
